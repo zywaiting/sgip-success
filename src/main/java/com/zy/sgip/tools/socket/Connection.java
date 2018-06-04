@@ -1,8 +1,13 @@
 package com.zy.sgip.tools.socket;
 
+import com.google.gson.JsonObject;
 import com.zy.sgip.tools.bean.*;
 import com.zy.sgip.tools.exception.ConnectionException;
 import com.zy.sgip.tools.send.Configuration;
+import com.zy.sgip.utils.LoginRedis;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -12,6 +17,8 @@ import java.net.Socket;
  * @author marker
  * */
 public class Connection {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Connection.class);
 
 	//超时时间
 	private int connectionTimeout;
@@ -135,7 +142,21 @@ public class Connection {
 			break;
 		}
 		if (msg != null) msg.setHead(head);
-		return msg; 
+		try {
+			SubmitResp submitResp = (SubmitResp) msg;
+			LOGGER.info("-- 济南联通存储发送状态Redis -- ");
+			JsonObject object = new JsonObject();
+			Jedis jedis = LoginRedis.login();
+			object.addProperty("MsgId", submitResp.getSequence());
+			object.addProperty("Result", submitResp.getResult());
+			String key = submitResp.getSequence().substring(submitResp.getSequence().length() - 9, submitResp.getSequence().length());
+			jedis.lpush("KEY_JNLT_SUBMIT_STATUS", key);
+			jedis.set(key, object.toString());
+			LOGGER.info("\n 济南联通的提交状态:{} {}", key, object.toString());
+		} catch (Exception e) {
+			//LOGGER.error("\n 济南联通的提交状态 错误 {}", e.getMessage());
+		}
+		return msg;
 	}
 	
 	

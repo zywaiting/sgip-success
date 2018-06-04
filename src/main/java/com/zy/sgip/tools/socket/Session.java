@@ -5,7 +5,6 @@ import com.zy.sgip.tools.bean.*;
 import com.zy.sgip.tools.exception.BindException;
 import com.zy.sgip.tools.exception.ConnectionException;
 import com.zy.sgip.tools.send.Configuration;
-import com.zy.sgip.tools.thread.SubmitThread;
 import com.zy.sgip.utils.LoginRedis;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -118,7 +117,7 @@ public  class Session {
 //			open(bind_bak);
 		try { 
 			conn.send(msg);
-			new SubmitThread().start();
+			conn.recv();
 		} catch (Exception e) {
 			this.connected = false;
 			bound = false;
