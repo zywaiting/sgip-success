@@ -31,6 +31,8 @@ public  class Session {
 
 	//网关连接对象
 	private static Connection conn = Connection.newInstance();
+	//redis链接
+	private static Jedis jedis = LoginRedis.login();
 	
 	private boolean connected = false; //连接状态
 	private boolean bound     = false; //bind状态
@@ -178,7 +180,6 @@ public  class Session {
 		JsonObject obj = new JsonObject();
 		try {
 			if (StringUtils.isNotBlank(report.getSubmitSeq()) ) {
-				Jedis jedis = LoginRedis.login();
 				obj.addProperty("Report_Stat", report.getResult());
 				obj.addProperty("Report_Done_time", format.format(new Date()));
 				jedis.lpush("KEY_JNLT_SEND_STATUS", report.getSubmitSeq());
@@ -196,7 +197,6 @@ public  class Session {
 		LOGGER.info("----------------上行回复---------------");
 		try {
 			LOGGER.info("手机:{},短信内容:{}", deliver.getUserNumber(), new String(deliver.getContent(), "UTF-8"));
-			Jedis jedis = LoginRedis.login();
 			jedis.lpush("KEY_JNLT_REPLY", deliver.getUserNumber());
 			jedis.set(deliver.getUserNumber(), new String(deliver.getContent(), "GBK"));
 			jedis.expire(deliver.getUserNumber(), 60 * 60 * 24 * 3);

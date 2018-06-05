@@ -26,6 +26,8 @@ public class Connection {
 	private int ioBufferSize;
 	//套接字
 	protected Socket socket;
+	//redis链接
+	private static Jedis jedis = LoginRedis.login();
 	
 	protected SGIP_OutputStream out;//输出流
 	protected SGIP_InputStream  in; //输入流
@@ -146,7 +148,6 @@ public class Connection {
 			SubmitResp submitResp = (SubmitResp) msg;
 			LOGGER.info("-- 济南联通存储发送状态Redis -- ");
 			JsonObject object = new JsonObject();
-			Jedis jedis = LoginRedis.login();
 			object.addProperty("MsgId", submitResp.getSequence());
 			object.addProperty("Result", submitResp.getResult());
 			String key = submitResp.getSequence().substring(submitResp.getSequence().length() - 9, submitResp.getSequence().length());
