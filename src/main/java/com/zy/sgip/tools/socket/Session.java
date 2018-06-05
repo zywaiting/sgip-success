@@ -17,6 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -28,6 +30,8 @@ public  class Session {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Session.class);
 
 	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    private ExecutorService service = Executors.newCachedThreadPool();
 
 	//网关连接对象
 	private static Connection conn = Connection.newInstance();
@@ -113,20 +117,26 @@ public  class Session {
 	 * @param msg 绑定命令
 	 * @return BindResp 绑定结果
 	 * */
-	public void sendSubmit(Submit msg) throws Exception {
-		//startTimer();
-//		if (!isConnected() || !isBound())
-//			open(bind_bak);
-		try { 
-			conn.send(msg);
-			conn.recv();
-		} catch (Exception e) {
-			this.connected = false;
-			bound = false;
-			//Thread.sleep(50L);//睡眠1秒重新发送
-			Session.this.sendSubmit(msg);
-		}
-	}
+    public void sendSubmit(Submit msg) throws Exception {
+        service.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    conn.send(msg);
+                    conn.recv();
+                } catch (Exception e) {
+                    /*this.connected = false;
+                    bound = false;*/
+                    try {
+                        Session.this.sendSubmit(msg);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
 	
 	

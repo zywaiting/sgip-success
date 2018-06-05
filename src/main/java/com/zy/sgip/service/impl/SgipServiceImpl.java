@@ -9,7 +9,6 @@ import com.zy.sgip.tools.send.SendSms;
 import com.zy.sgip.tools.socket.Connection;
 import com.zy.sgip.tools.socket.Session;
 import com.zy.sgip.tools.thread.ListenThread;
-import com.zy.sgip.tools.thread.SubmitThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -30,7 +29,7 @@ public class SgipServiceImpl implements SgipService {
 
 
     private ListenThread listenThread = null;//上行、状态报告监听器
-    private SubmitThread submitThread = null;//上行、状态报告监听器
+
 
     @PostConstruct
     public void init() {
@@ -41,10 +40,6 @@ public class SgipServiceImpl implements SgipService {
                 listenThread = new ListenThread(session);
                 listenThread.start();
             }
-            /*if (submitThread == null){
-                submitThread = new SubmitThread();
-                submitThread.start();
-            }*/
         } catch (Exception e){
 
         }
@@ -71,7 +66,7 @@ public class SgipServiceImpl implements SgipService {
     }
 
 
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0/40 * * * * ?")
     public void Socket() {
         Connection conn = new Connection(Configuration.UIP,Configuration.UPORT);
         try {

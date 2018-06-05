@@ -104,7 +104,8 @@ public class Connection {
 	 * */
 	public synchronized void send(Message msg) throws ConnectionException, IOException {
 		if (socket == null || out == null || in == null) {
-			throw new ConnectionException("connection is invalid!");
+		    LOGGER.warn("异常");
+			//throw new ConnectionException("connection is invalid!");
 		} else {
 			msg.write(out);
 			out.flush();//刷新缓冲输出流
